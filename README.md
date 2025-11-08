@@ -293,22 +293,6 @@ python validate.py
 python tests/test_scenarios.py
 ```
 
-## 📊 Expected Test Scenarios
-
-✅ **Basic job completes successfully**  
-✅ **Failed job retries with backoff and moves to DLQ**  
-✅ **Multiple workers process jobs without overlap**  
-✅ **Invalid commands fail gracefully**  
-✅ **Job data survives restart**
-
-## 🎨 Bonus Features (Implemented)
-
-- ✅ **Job Timeout Handling**: Per-job and default timeouts
-- ✅ **Job Priority Queues**: Lower number = higher priority
-- ✅ **Scheduled/Delayed Jobs**: `run_at` field for future execution
-- ✅ **Job Output Logging**: Captures stdout/stderr to files
-- ✅ **Execution Stats**: Records duration, exit codes, byte counts
-- ✅ **Minimal Web Dashboard**: HTML interface for monitoring
 
 ## 📁 Project Structure
 
@@ -332,64 +316,6 @@ queuectl/
 └── README.md            # This file
 ```
 
-## ⚠️ Assumptions & Trade-offs
-
-### Assumptions
-
-1. **Command Execution**: Uses shell execution (`shell=True`) for cross-platform compatibility
-2. **Exit Codes**: Exit code 0 = success, non-zero = failure
-3. **Time Format**: All timestamps in ISO8601 UTC format
-4. **Database**: SQLite for simplicity (can be swapped for PostgreSQL/MySQL in production)
-
-### Trade-offs
-
-1. **"failed" State**: Jobs in "failed" state are automatically moved to "pending" when `next_run_at` arrives. This simplifies the retry logic while maintaining the state distinction.
-
-2. **Worker Processes**: Uses multiprocessing for true parallelism. Workers share the same database connection pool.
-
-3. **Atomic Job Claiming**: Uses SQL UPDATE with subquery for atomic job claiming, preventing race conditions without explicit locks.
-
-4. **Log Storage**: Logs stored as files (one per job) rather than in database for performance and size considerations.
-
-5. **Configuration**: Stored in database for persistence, but defaults are set on first run.
-
-## 🔧 Configuration Options
-
-| Key | Default | Description |
-|-----|---------|-------------|
-| `max_retries` | 3 | Maximum retry attempts before moving to DLQ |
-| `backoff_base` | 2 | Base for exponential backoff (delay = base^attempts) |
-| `poll_interval_ms` | 500 | Worker polling interval in milliseconds |
-| `default_timeout_secs` | 60 | Default job timeout in seconds |
-
-## 🐛 Troubleshooting
-
-### Workers Not Processing Jobs
-
-- Check if workers are running: `queuectl status`
-- Verify jobs are in "pending" state: `queuectl list --state pending`
-- Check database: `data/queuectl.db`
-
-### Jobs Stuck in Processing
-
-- Workers may have crashed. Restart workers.
-- Check logs in `data/logs/` for errors
-- Manually update state if needed (use SQLite directly)
-
-### Database Locked Errors
-
-- Ensure only one process is accessing the database at a time
-- Check for zombie worker processes
-
-## 📝 License
-
-This project is part of a backend developer internship assignment.
-
-## 👤 Author
-
-QueueCTL Development Team
-
----
 
 ## ✅ Checklist
 
