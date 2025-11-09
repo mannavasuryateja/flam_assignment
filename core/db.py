@@ -60,7 +60,7 @@ class JobStore:
         with self._conn() as c:
             c.executescript(SCHEMA)
 
-    # ---------- CRUD ----------
+    
     def enqueue(self, job):
         now = utcnow()
         job = {
@@ -123,11 +123,11 @@ class JobStore:
                 WHERE id=? AND state='dead'
             """, (now, now, job_id))
 
-    # ---------- Worker coordination ----------
+    
     def claim_next(self, worker_name):
         """Atomically claim the next eligible job."""
         now = utcnow()
-        # First, move any failed jobs that are ready to retry back to pending
+        
         self.move_failed_to_pending()
         with self._conn() as c:
             cur = c.cursor()
@@ -144,7 +144,7 @@ class JobStore:
                 )
             """, (worker_name, now, now))
 
-            # ✅ If no job updated, nothing to process
+            
             if cur.rowcount == 0:
                 return None
 
@@ -177,7 +177,7 @@ class JobStore:
                     WHERE id=?
                 """, (now, last_error, job_id))
             else:
-                # Set to 'failed' state first, then schedule retry
+                
                 delay = backoff_base ** attempts
                 next_run = (datetime.utcnow() + timedelta(seconds=delay)).isoformat() + "Z"
                 c.execute("""
@@ -196,7 +196,7 @@ class JobStore:
                 WHERE state='failed' AND (next_run_at IS NULL OR next_run_at <= ?)
             """, (now, now))
 
-    # ---------- Logging & metrics ----------
+    
     def log_paths_for(self, job_id):
         stdout = self.logs_dir / f"{job_id}.stdout.log"
         stderr = self.logs_dir / f"{job_id}.stderr.log"
