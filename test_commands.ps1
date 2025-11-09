@@ -1,5 +1,3 @@
-# Test script for queuectl
-# Run with: .\venv\Scripts\Activate.ps1; .\test_commands.ps1
 
 Write-Host "=== Testing queuectl ===" -ForegroundColor Green
 
