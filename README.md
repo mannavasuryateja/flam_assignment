@@ -1,4 +1,4 @@
-# QueueCTL - CLI Background Job Queue System
+# QueueCTL - CLI(command line interface) Background Job Queue System 
 
 A production-grade, CLI-based background job queue system with worker processes, automatic retries with exponential backoff, and Dead Letter Queue (DLQ) support.
 
