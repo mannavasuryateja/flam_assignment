@@ -1,5 +1,4 @@
 # core/main.py
-#!/usr/bin/env python3
 import json
 import os
 import signal
@@ -10,20 +9,20 @@ from pathlib import Path
 from tabulate import tabulate
 import click
 
-# Ensure relative imports work when called as "python core/main.py ..."
+
 CURRENT_DIR = Path(__file__).resolve().parent
 ROOT = CURRENT_DIR.parent
 DATA_DIR = ROOT / "data"
 LOGS_DIR = DATA_DIR / "logs"
 DB_PATH = str(DATA_DIR / "queuectl.db")
 
-# Local imports
+
 from .db import JobStore
 from .worker import WorkerManager
 from .config import ConfigStore
 from .web import dashboard_app
 
-# Instantiate stores
+
 store = JobStore(DB_PATH, LOGS_DIR)
 config = ConfigStore(DB_PATH)
 manager = WorkerManager(store, config)
@@ -32,7 +31,7 @@ manager = WorkerManager(store, config)
 def cli():
     pass
 
-# ---------------- Enqueue ----------------
+
 @cli.command(help="Enqueue a job (JSON). Example: enqueue '{\"id\":\"job1\",\"command\":\"echo Hello\"}'")
 @click.argument("job_json")
 @click.option("--priority", type=int, help="Lower is higher priority")
@@ -55,7 +54,7 @@ def enqueue(job_json, priority, run_at, timeout, max_retries):
     created = store.enqueue(job)
     click.echo(tabulate([created], headers="keys"))
 
-# ---------------- Workers ----------------
+
 @cli.group(help="Worker management")
 def worker():
     pass
@@ -84,7 +83,7 @@ def worker_stop():
     manager.stop()
     click.echo("Stop requested")
 
-# ---------------- Status / List ----------------
+
 @cli.command(help="Show summary of all job states & metrics")
 def status():
     s = store.stats()
@@ -99,7 +98,7 @@ def list_cmd(state):
     else:
         click.echo("No jobs found.")
 
-# ---------------- DLQ ----------------
+
 @cli.group(help="Dead Letter Queue operations")
 def dlq():
     pass
@@ -115,7 +114,7 @@ def dlq_retry(job_id):
     store.retry_from_dlq(job_id)
     click.echo(f"Retry requested for {job_id}")
 
-# ---------------- Config ----------------
+
 @cli.group(name="config", help="Configuration management")
 def config_cmd():
     pass
@@ -136,14 +135,14 @@ def config_get(key):
 def config_show():
     click.echo(tabulate([config.all()], headers="keys"))
 
-# ---------------- Logs ----------------
+
 @cli.command(help="Show paths to logs for a job")
 @click.argument("job_id")
 def logs(job_id):
     out, err = store.log_paths_for(job_id)
     click.echo(f"stdout: {out}\nstderr: {err}")
 
-# ---------------- Web dashboard ----------------
+
 @cli.command(help="Start the minimal web dashboard")
 @click.option("--host", default="127.0.0.1", show_default=True)
 @click.option("--port", default=8000, show_default=True, type=int)
@@ -153,6 +152,6 @@ def web(host, port):
     uvicorn.run(app, host=host, port=port)
 
 if __name__ == "__main__":
-    # Allow running via: python core/main.py ...
+    
     sys.path.append(str(ROOT))
     cli()
