@@ -35,12 +35,12 @@ class WorkerProcess(mp.Process):
             bytes_out = 0
             bytes_err = 0
             try:
-                # Capture stdout/stderr for logs
+            
                 with open(stdout_path, "ab") as out_f, open(stderr_path, "ab") as err_f:
                     proc = subprocess.run(
                         cmd,
-                        shell=True,              # On Windows this uses cmd.exe by default
-                        capture_output=True,     # capture first, then append
+                        shell=True,              
+                        capture_output=True,     
                         timeout=timeout
                     )
                     if proc.stdout:
@@ -55,7 +55,7 @@ class WorkerProcess(mp.Process):
                     msg = f"timeout after {timeout}s"
                     err_f.write(msg.encode("utf-8") + b"\n")
                     bytes_err = len(msg) + 1
-                exit_code = 124  # conventional timeout code
+                exit_code = 124  
             except Exception as e:
                 with open(stderr_path, "ab") as err_f:
                     msg = f"exception: {e}"
